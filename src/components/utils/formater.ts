@@ -13,3 +13,9 @@ export const phoneMask = (phoneNumber: string): string => {
     .replace("00000", part1)
     .replace("0000", part2);
 };
+
+export const removeNullableValues = (obj: object) => {
+  const entries = Object.entries(obj).filter(([_k, value]) => value);
+
+  return Object.fromEntries(entries);
+};

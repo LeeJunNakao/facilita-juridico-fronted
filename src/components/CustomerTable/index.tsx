@@ -1,5 +1,4 @@
 import {
-  MRT_GlobalFilterTextField,
   MRT_TableBodyCellValue,
   flexRender,
   type MRT_ColumnDef,
@@ -7,6 +6,8 @@ import {
 } from "material-react-table";
 import {
   Box,
+  Grid,
+  Paper,
   Stack,
   Table,
   TableBody,
@@ -14,9 +15,10 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
+  Typography,
 } from "@mui/material";
 import { Customer } from "protocols/entities";
-import { IMask } from "react-imask";
 import { phoneMask } from "components/utils/formater";
 
 const columns: MRT_ColumnDef<Customer>[] = [
@@ -44,11 +46,15 @@ const columns: MRT_ColumnDef<Customer>[] = [
   },
 ];
 
+export type Filters = { name: string; email: string; phone: string };
+
 type Props = {
   data: Customer[];
+  filters: Filters;
+  handleChangeFilter: (k: keyof Filters, value: string) => void;
 };
 
-const CustomerTable = ({ data }: Props) => {
+const CustomerTable = ({ data, filters, handleChangeFilter }: Props) => {
   const table = useMaterialReactTable({
     columns,
     data,
@@ -64,48 +70,76 @@ const CustomerTable = ({ data }: Props) => {
 
   return (
     <Stack sx={{ m: "2rem 0" }}>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <MRT_GlobalFilterTextField table={table} />
-      </Box>
+      <Typography variant="caption">Filtros</Typography>
+      <Grid container columnGap={2}>
+        <Grid item>
+          <TextField
+            label="name"
+            size="small"
+            value={filters.name}
+            onChange={(e) => handleChangeFilter("name", e.target.value)}
+          />
+        </Grid>
 
-      <TableContainer>
-        <Table>
-          <TableHead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableCell align="left" variant="head" key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          (header.column.columnDef.Header as any) ??
-                            header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableCell>
+        <Grid item>
+          <TextField
+            label="email"
+            size="small"
+            value={filters.email}
+            onChange={(e) => handleChangeFilter("email", e.target.value)}
+          />
+        </Grid>
+
+        <Grid item>
+          <TextField
+            label="phone"
+            size="small"
+            value={filters.phone}
+            onChange={(e) => handleChangeFilter("phone", e.target.value)}
+          />
+        </Grid>
+      </Grid>
+
+      {data.length > 0 ? (
+        <Paper sx={{ marginTop: 5 }}>
+          <TableContainer>
+            <Table>
+              <TableHead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <TableCell align="left" variant="head" key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              (header.column.columnDef.Header as any) ??
+                                header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
                 ))}
-              </TableRow>
-            ))}
-          </TableHead>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <TableRow key={row.id} selected={row.getIsSelected()}>
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell align="left" variant="body" key={cell.id}>
-                    {MRT_TableBodyCellValue({ cell, table })}
-                  </TableCell>
+              </TableHead>
+              <TableBody>
+                {table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} selected={row.getIsSelected()}>
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell align="left" variant="body" key={cell.id}>
+                        {MRT_TableBodyCellValue({ cell, table })}
+                      </TableCell>
+                    ))}
+                  </TableRow>
                 ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Paper>
+      ) : (
+        <Box marginY={5}>
+          <Typography variant="h5">Nenhum cliente cadastrado</Typography>
+        </Box>
+      )}
     </Stack>
   );
 };
